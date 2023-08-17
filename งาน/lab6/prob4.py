@@ -1,6 +1,7 @@
 import sys
 from PyQt6.QtWidgets import QApplication, QMainWindow, QLabel, QPushButton, QCheckBox, QComboBox, QWidget, QVBoxLayout
 from PyQt6.QtCore import Qt
+from PyQt6.QtGui import QFont
 
 class DrinkApp(QMainWindow):
     def __init__(self):
@@ -9,14 +10,14 @@ class DrinkApp(QMainWindow):
         
         central_widget = QWidget()
         self.setCentralWidget(central_widget)
-        
         layout = QVBoxLayout()
-        
-        self.label = QLabel("Chakkapat Waenmooks")
-        self.label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.label.setStyleSheet("background-color: green;")
-        layout.addWidget(self.label)
-        
+
+        self.name_label = QLabel("Chakkapat Waenmook")
+        font = QFont("Arial", 16, QFont.Weight.Bold)
+        self.name_label.setFont(font)
+        self.name_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        layout.addWidget(self.name_label)
+
         self.orange_check = QCheckBox("Orange Juice")
         self.green_check = QCheckBox("Green Tea")
         
@@ -31,6 +32,11 @@ class DrinkApp(QMainWindow):
         self.combo.addItem("DME")
         self.combo.currentIndexChanged.connect(self.update_label)
         layout.addWidget(self.combo)
+        
+        self.label = QLabel("Pengpan")
+        self.label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.label.setStyleSheet("background-color: green;")
+        layout.addWidget(self.label)
         
         quit_button = QPushButton("Quit")
         quit_button.clicked.connect(self.close)
