@@ -19,6 +19,9 @@ class Calculator(QWidget):
         for position, name in zip(positions, names):
             button = QPushButton(name)
             button.clicked.connect(self.set_text)
+            button_font = QFont("Arial, 20")
+            button.setFont(button_font)
+            grid.addWidget(button, *position)
 
             
         self.output_label = QLineEdit('8')
