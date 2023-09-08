@@ -1,102 +1,109 @@
 import sys
-from PyQt6.QtWidgets import QApplication, QMainWindow, QLabel, QLineEdit, QPushButton, QTextEdit, QVBoxLayout, QHBoxLayout, QFrame, QSizePolicy, QWidget
-
-class CalculatorApp(QMainWindow):
+from PyQt6.QtWidgets import *
+from PyQt6.QtCore import Qt
+from PyQt6.QtGui import QAction
+class MainWindow(QMainWindow):
     def __init__(self):
-        super().__init__()
-
-        self.initUI()
-    def initUI(self):
-        self.setWindowTitle("Calculator with Menus")
-        self.setGeometry(100, 100, 400, 300)
+        super(MainWindow, self).__init__()
+        self.setWindowTitle("Simple Calculator")
+        self.mainLayout = QVBoxLayout()
 
 
-        menubar = self.menuBar()
-        file_menu = menubar.addMenu("File")
-        edit_menu = menubar.addMenu("Edit")
-        config_menu = menubar.addMenu("Config")
- 
-        self.label1 = QLabel("Enter the first number:")
-        self.line_edit1 = QLineEdit()
-        self.label2 = QLabel("Enter the second number:")
-        self.line_edit2 = QLineEdit()
-        self.line_edit1.setStyleSheet("background-color: yellow;")
-        self.line_edit2.setStyleSheet("background-color: yellow;")
+        self._createMenuBar()
+        self._createNumbersLayout()
+        self._createButtonsLayout()
+        self._createResultLayout()
         
-        self.operators_layout = QHBoxLayout()
-        self.add_button = QPushButton("+")
-        self.subtract_button = QPushButton("-")
-        self.multiply_button = QPushButton("*")
-        self.divide_button = QPushButton("/")
-        
-        self.operators_layout.addWidget(self.add_button)
-        self.operators_layout.addWidget(self.subtract_button)
-        self.operators_layout.addWidget(self.multiply_button)
-        self.operators_layout.addWidget(self.divide_button)
-        
-        self.result_box = QFrame()
-        self.result_box.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
-        self.result_layout = QHBoxLayout(self.result_box)
+        self.mainLayout.addLayout(self.numbersLayout)
+        self.mainLayout.addLayout(self.buttonsLayout)
+        self.mainLayout.addLayout(self.resultLayout)
+
+        self.container = QWidget()
+        self.container.setLayout(self.mainLayout)
+        self.setCentralWidget(self.container)
+
+    def _createMenuBar(self):
+        self.menuBar = self.menuBar()
+        self.menuBar.setNativeMenuBar(False)
+        self.fileMenu = self.menuBar.addMenu("File")
+        self.editMenu = self.menuBar.addMenu("Edit")
+        self.configMenu = self.menuBar.addMenu("Config")
+
+    def _createNumbersLayout(self):
+        self.numbersLayout = QGridLayout()
+        self.first_number_label = QLabel("Enter the first number:")
+        self.first_number_edit = QLineEdit()
+        self.first_number_edit.setStyleSheet("background-color: yellow;") 
+        self.second_number_label = QLabel("Enter the second number:")
+        self.second_number_edit = QLineEdit()
+        self.second_number_edit.setStyleSheet("background-color: yellow;")
+        self.first_number_edit.setAlignment(Qt.AlignmentFlag.AlignRight)  
+        self.second_number_edit.setAlignment(Qt.AlignmentFlag.AlignRight)  
+
+        self.numbersLayout.addWidget(self.first_number_label,0,0)
+        self.numbersLayout.addWidget(self.first_number_edit,0,1)
+        self.numbersLayout.addWidget(self.second_number_label,1,0)
+        self.numbersLayout.addWidget(self.second_number_edit,1,1)   
+    
+    def _createButtonsLayout(self):
+        self.buttonsLayout = QGridLayout()
+        names = ['+','-','*','/']
+
+        positions = [(i, j) for i in range(1,6) for j in range(4)]
+
+        for position, name in zip(positions, names):
+            if name == '':
+                continue
+            button = QPushButton(name)
+            button.clicked.connect(self.cal)
+            self.buttonsLayout.addWidget(button, *position)          
+    
+    
+    def _createResultLayout(self):
+        self.resultLayout= QGridLayout()
         self.result_label = QLabel("Result:")
-        self.result_text = QTextEdit()
-        self.result_layout.addWidget(self.result_label)
-        self.result_layout.addWidget(self.result_text)
-        self.result_text.setStyleSheet("background-color: green;")
+        self.result_edit = QTextEdit()
+        self.result_edit.setStyleSheet("background-color: lightgreen;") 
 
+        self.resultLayout.addWidget(self.result_label,3,0)
+        self.resultLayout.addWidget(self.result_edit,3,1)
 
-        main_layout = QVBoxLayout()
-        entry_layout1 = QHBoxLayout()
-        entry_layout1.addWidget(self.label1)
-        entry_layout1.addWidget(self.line_edit1)
+    def cal(self):
+        op = self.sender().text()
+        ans = 0
+        try:
+            n1 = float(self.first_number_edit.text())
+            n2 = float(self.second_number_edit.text())
+            if op == '+':
+                ans = n1 + n2
+            elif op == '-':
+                ans = n1 - n2
+            elif op == '*':
+                ans = n1 * n2
+            elif op == '/':
+                ans = n1 / n2
+            self.result_edit.append(f'{n1} {op} {n2} = {ans}')
+        except ZeroDivisionError:
+            self.result_edit.append('Error: Division by zero')
+        except ValueError:
+            self.result_edit.append('Enter number plsssssss')
         
-        entry_layout2 = QHBoxLayout()
-        entry_layout2.addWidget(self.label2)
-        entry_layout2.addWidget(self.line_edit2)
-
-        main_layout.addLayout(entry_layout1)
-        main_layout.addLayout(entry_layout2)
-        main_layout.addLayout(self.operators_layout)
-        main_layout.addWidget(self.result_box)
-
-        container = QWidget()
-        container.setLayout(main_layout)
-        self.setCentralWidget(container)
+    def _addEditMenu(self):
+        self.clearAction = QAction("Clear", self)
+        self.copyAction = QAction("Copy", self)
+        self.pasteAction = QAction("Paste", self)
+        self.cutAction = QAction("Cut", self)
+        self.editMenu.addAction(self.clearAction)
+        self.editMenu.addAction(self.copyAction)
+        self.editMenu.addAction(self.pasteAction)
+        self.editMenu.addAction(self.cutAction)
 
 
-        self.add_button.clicked.connect(self.add)
-        self.subtract_button.clicked.connect(self.subtract)
-        self.multiply_button.clicked.connect(self.multiply)
-        self.divide_button.clicked.connect(self.divide)
 
-    def add(self):
-        num1 = float(self.line_edit1.text())
-        num2 = float(self.line_edit2.text())
-        result = num1 + num2
-        self.result_text.setPlainText(str(result))
-
-    def subtract(self):
-        num1 = float(self.line_edit1.text())
-        num2 = float(self.line_edit2.text())
-        result = num1 - num2
-        self.result_text.setPlainText(str(result))
-
-    def multiply(self):
-        num1 = float(self.line_edit1.text())
-        num2 = float(self.line_edit2.text())
-        result = num1 * num2
-        self.result_text.setPlainText(str(result))
-
-    def divide(self):
-        num1 = float(self.line_edit1.text())
-        num2 = float(self.line_edit2.text())
-        if num2 != 0:
-            result = num1 / num2
-            self.result_text.setPlainText(str(result))
-        else:
-            self.result_text.setPlainText("Cannot divide by zero")
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
-    window = CalculatorApp()
+    window = MainWindow()
     window.show()
     sys.exit(app.exec())
+
